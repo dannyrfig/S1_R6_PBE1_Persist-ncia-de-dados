@@ -23,7 +23,7 @@ const clienteModel = {
             
             const pool = await getConnection(); //Cria conexão com o BD
 
-            let querySQL = 'SELECT * FROM Clientes WHERE cpfCliente = @cpfCliente;';
+            let querySQL = 'SELECT * FROM Clientes WHERE cpfCliente = @cpfCliente;'; // Seleciona os cpfs do cliente
 
             const result = await pool.request()
             .input('cpfCliente',sql.VarChar(14), cpfCliente)
@@ -45,8 +45,8 @@ const clienteModel = {
             let querySQL = 'INSERT INTO Clientes(nomeCliente, cpfCliente) VALUES(@nomeCliente, @cpfCliente)';
 
             await pool.request()
-            .input('nomeCliente',sql.VarChar(100), nomeCliente)
-            .input('cpfCliente',sql.VarChar(14), cpfCliente)
+            .input('nomeCliente',sql.VarChar(100), nomeCliente) //Define qual o tamanho que o nome que o usuário inserir deve ter
+            .input('cpfCliente',sql.VarChar(14), cpfCliente)//Define qual o tamanho que o cpf que o usuário inserir deve ter
             .query(querySQL);
             
         } catch (error) {
