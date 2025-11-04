@@ -15,9 +15,29 @@ const clienteModel = {
 
         } catch (error) {
             console.log('Erro: ao buscar clientes:',error);
-            throw error; //
+            throw error; // Reverbera
         }
     },
+    
+    buscarUm: async (idCliente) =>{
+        try {
+            const pool = await getConnection();
+            const querySQL = `SELECT * FROM clientes WHERE idClientes = @idCliente`
+            
+            const result = await pool
+            .request()
+            .input (`idCliente`, sql.UniqueIdentifier, idCliente)
+            .query(querySQL);
+
+            return result.recordset;
+        } catch (error) {
+            console.error(`Erro ao busar o cliente:`, error);
+            throw error ;
+            
+        }
+    },
+
+
     buscarCpf: async (cpfCliente) =>{
         try {
             
@@ -37,6 +57,8 @@ const clienteModel = {
             throw error; //
         }
     },
+
+
     inserirCliente: async (nomeCliente,cpfCliente)=>{
         try {
             

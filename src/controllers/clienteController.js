@@ -6,17 +6,27 @@ const clienteController = {
     //GET /clientes
     //---------------------------
 
-    listarClientes: async (req,res)=> {
-        try {
-            const cliente = await clienteModel.buscarTodos();
-
-            res.status(200).json(cliente);
-        } catch (error) {
-            console.error('Erro ao listar clientes:', error);
-            res.status(500).json({message: 'Erro ao buscar clientes.'});
-        }
-    },
-    
+  listarClientes: async (req, res) => {
+    try {
+         const {idCliente} = req.query;
+   
+         if (idCliente) {
+           if(idCliente.length != 36) {
+             return res.status(400).json({erro: `id do cliente invalido!`})
+           }
+           const cliente = await clienteModel.buscarUm(idCliente);
+   
+           return res.status(200).json(cliente);
+         }
+         const clientes = await clienteModel.buscarTodos(); //busca todos
+   
+         res.status(200).json(clientes);
+       } catch (error) {
+         console.error("Erro ao listar os clientes:", error);
+         res.status(500).json({ message: "Erro ao buscar os clientes." });
+       }
+     },
+   
      //---------------------------
     //CRIAR UM NOVO CLIENTE
     //POST /clientes

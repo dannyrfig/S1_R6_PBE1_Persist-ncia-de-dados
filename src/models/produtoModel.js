@@ -1,41 +1,91 @@
-const {sql, getConnection} = require("../config/db");
+const { sql, getConnection } = require("../config/db");
 
 const produtoModel = {
-    buscarTodos: async () =>{
-        try {
-            
-            const pool = await getConnection(); //Cria conexão com o BD
+  buscarTodos: async () => {
+    try {
+      const pool = await getConnection(); //Cria conexão com o BD
 
-            let sql = 'SELECT * FROM Produtos';
+      let sql = "SELECT * FROM Produtos";
 
-            const result = await pool.request().query(sql);
+      const result = await pool.request().query(sql);
 
-            return result.recordset;
+      return result.recordset;
+    } catch (error) {
+      console.log("Erro: ao buscar produtos:", error);
+      throw error; //
+    }
+  },
 
+  buscarUm: async (idProduto) => {
+    try {
+      const pool = await getConnection();
+      const querySQL = "SELECT * FROM Produtos WHERE idProduto= @idProduto";
 
-        } catch (error) {
-            console.log('Erro: ao buscar produtos:',error);
-            throw error; //
-        }
-    },
+      const result = await pool
+        .request()
+        .input("idProduto", sql.UniqueIdentifier, idProduto)
+        .query(querySQL);
 
-    inserirProduto: async (nomeProduto,precoProduto)=>{
-        try {
-            
-            const pool = await getConnection();
-            
-            let querySQL = 'INSERT INTO Produtos(nomeProduto, PrecoProduto) VALUES(@nomeProduto, @precoProduto)';
+      return result.recordset;
+    } catch (error) {
+      console.error("Error ao buscar o produto:", error);
+      throw error; 
+    }
+  },
 
-            await pool.request()
-            .input('nomeProduto',sql.VarChar(100), nomeProduto)
-            .input('precoProduto',sql.Decimal(10,2), precoProduto)
+  inserirProduto: async (nomeProduto, precoProduto) => {
+    try {
+      const pool = await getConnection();
+
+      let querySQL =
+        "INSERT INTO Produtos(nomeProduto, PrecoProduto) VALUES(@nomeProduto, @precoProduto)";
+
+      await pool
+        .request()
+        .input("nomeProduto", sql.VarChar(100), nomeProduto)
+        .input("precoProduto", sql.Decimal(10, 2), precoProduto)
+        .query(querySQL);
+    } catch (error) {
+      console.error("Erro ao inserir produto:", error);
+      throw error; //Passa o erro para o controller tratar
+    }
+  },
+
+    atualizarProduto: async (idProduto, nomeProduto, precoProduto) =>{
+       try {
+        const pool = await getConnection ();
+
+        const querySQL = `
+            UPDATE Produtos
+            SET  nomeProduto = @nomeProduto,
+                precoProduto = @precoProduto
+            WHERE idProduto = @idProduto
+        `
+        await pool.request()
+            .input('idProduto', sql.UniqueIdentifier, idProduto)
+            .input('nomeProduto', sql.VarChar(100), nomeProduto)
+            .input('precoProduto', sql.Decimal(10, 2), precoProduto)
             .query(querySQL);
-            
-        } catch (error) {
-            console.error('Erro ao inserir produto:',error);
-            throw error; //Passa o erro para o controller tratar
-        }
+
+       } catch (error) {
+        
+       }
+        
+    },
+    deletarProduto: async (idProduto) => {
+      try {
+        const pool = await getConnection();
+
+        const querySQL = 'DELETE FROM Produtos WHERE idProduto =@idProduto'
+
+        await pool.request()
+        .input('idProduto', sql.UniqueIdentifier, idProduto)
+        .query(querySQL);
+      } catch (error) {
+        console.error('Erro ao deletar o produto;', error);
+        throw error;
+      }
     }
 }
 
-module.exports = {produtoModel}
+module.exports = { produtoModel };
